@@ -1,0 +1,6 @@
+{
+  "name": "Ruhul Media",
+  "description": "Ruhul Media - video sharing application with custom video player, home feed, search, comments, and dark mode.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
