@@ -1,114 +1,35 @@
-package com.example
+package com.aistudio.youtube.cvyqmp
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.PlayCircleOutline
-import androidx.compose.material.icons.filled.Subscriptions
-import androidx.compose.material.icons.filled.VideoLibrary
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.PlayCircleOutline
-import androidx.compose.material.icons.outlined.Subscriptions
-import androidx.compose.material.icons.outlined.VideoLibrary
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.model.NavigationDestination
-import com.example.ui.components.YouTubeHeader
-import com.example.ui.components.YouTubeSidebar
-import com.example.ui.dialogs.AuthDialog
-import com.example.ui.dialogs.NotificationsDialog
-import com.example.ui.dialogs.ProfileDialog
-import com.example.ui.dialogs.VoiceSearchDialog
-import com.example.ui.screens.DestinationListScreen
-import com.example.ui.screens.HomeScreen
-import com.example.ui.screens.VideoPlayerScreen
-import com.example.ui.theme.MyApplicationTheme
-import com.example.ui.theme.YouTubeRed
-import com.example.viewmodel.YouTubeViewModel
-import kotlinx.coroutines.launch
+import android.widget.ArrayAdapter
+import android.widget.ListView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            val viewModel: YouTubeViewModel = viewModel()
-            val uiState by viewModel.uiState.collectAsState()
-
-            MyApplicationTheme(darkTheme = uiState.isDarkMode) {
-                YouTubeApp(viewModel = viewModel)
-            }
+        
+        // ইউটিউব স্টাইলের লেআউট ও ভিডিও তালিকা
+        val listView = ListView(this)
+        val videoList = arrayOf(
+            "▶ ট্রেন্ডিং মিউজিক ভিডিও ২০২৬",
+            "▶ অ্যান্ড্রয়েড অ্যাপ ডেভেলপমেন্ট টিউটোরিয়াল",
+            "▶ এআই দিয়ে কীভাবে ভিডিও বানাবেন",
+            "▶ টেকনোলজি নিউজ এবং আপডেট",
+            "▶ লাইভ স্ট্রিমিং ও ব্লগিং গাইড"
+        )
+        
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, videoList)
+        listView.adapter = adapter
+        
+        listView.setOnItemClickListener { _, _, position, _ ->
+            Toast.makeText(this, "প্লে হচ্ছে: ${videoList[position]}", Toast.LENGTH_SHORT).show()
         }
+        
+        setContentView(listView)
     }
 }
-
-@Composable
-fun YouTubeApp(viewModel: YouTubeViewModel) {
-    val uiState by viewModel.uiState.collectAsState()
-    val filteredVideos by viewModel.filteredVideos.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-
-    // Handle back button when video player is open or sidebar is open
-    BackHandler(enabled = uiState.selectedVideo != null || uiState.isSidebarOpen) {
-        when {
-            uiState.selectedVideo != null -> viewModel.closeVideoPlayer()
-            uiState.isSidebarOpen -> viewModel.setSidebarOpen(false)
-        }
-    }
-
-    // Show snackbar messages for interactions (e.g. Saved, Subscribed, etc.)
-    LaunchedEffect(uiState.snackbarMessage) {
-        uiState.snackbarMessage?.let { msg ->
-            snackbarHostState.showSnackbar(
-                message = msg,
-                duration = SnackbarDuration.Short
             )
             viewModel.clearSnackbarMessage()
         }
